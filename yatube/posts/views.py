@@ -46,7 +46,7 @@ def profile(request: HttpRequest, username: str) -> HttpResponse:
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     following = None
-    if request.user.is_authenticated and user != request.user:
+    if request.user.is_authenticated:
         following = False
         if Follow.objects.filter(
             author=user,
@@ -160,7 +160,7 @@ def profile_follow(request: HttpRequest, username: str) -> HttpResponse:
     follow = Follow.objects.filter(
         user=request.user.is_authenticated,
         author=author).exists()
-    if follow is False or author != request.user:
+    if follow is False and author != request.user:
         Follow.objects.create(
             author=author,
             user=request.user,
