@@ -160,7 +160,7 @@ def profile_follow(request: HttpRequest, username: str) -> HttpResponse:
     follow = Follow.objects.filter(
         user=request.user.is_authenticated,
         author=author).exists()
-    if follow is False and author != request.user:
+    if follow is False or author != request.user:
         Follow.objects.create(
             author=author,
             user=request.user,
