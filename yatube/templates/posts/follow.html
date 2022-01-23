@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Последние обновления у автора{% endblock %}
+{% block content %}
+    <h1>Избранные посты</h1>
+  {% include 'includes/switcher.html' %}
+  {% for post in page_obj %}
+  {% include 'includes/post_feed_card.html' %}
+    {% if not forloop.last %}<hr>{% endif %}
+  {% endfor %}
+  {% include 'includes/paginator.html' %}
+{% endblock %}
+
