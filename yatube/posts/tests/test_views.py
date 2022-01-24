@@ -10,7 +10,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from ..forms import PostForm
-from ..models import Group, Post
+from ..models import Follow, Group, Post
 from ..views import POSTS_PER_PAGE
 
 User = get_user_model()
@@ -24,6 +24,7 @@ class PostPagesTests(TestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         cls.user = User.objects.create_user(username='auth')
+        cls.follower = User.objects.create_user(username='follower')
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-slug',
@@ -34,10 +35,16 @@ class PostPagesTests(TestCase):
             group=cls.group,
             text='Тестовая публикация',
         )
+        cls.follow = Follow.objects.create(
+            author = cls.user,
+            user = cls.follower,
+        )
 
     def setUp(self) -> None:
         self.authorized_client = Client()
+        self.follower_client = Client()
         self.authorized_client.force_login(self.user)
+        self.follower_client.force_login(self.follower)
 
     def test_pages_uses_correct_template(self) -> None:
         """URL uses correct address."""
@@ -135,6 +142,16 @@ class PostPagesTests(TestCase):
 
     def test_follow_index_page(self) -> None:
         """Check follow index page"""
+        resp = self.follower_client.get(reverse('posts:follow_index'))
+        post_check = resp.context.get('page_obj')[0]
+        the_post = Post.objects.get(
+            id=self.post.pk
+        )
+        self.assertEqual(
+            post_check,
+            the_post,
+            f'Error with follower client post view: {resp}.'
+        )
 
     def test_cache_index_page(self) -> None:
         """Check cache works correct."""
@@ -156,6 +173,7 @@ class PaginatorViewsTest(TestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         cls.user = User.objects.create_user(username='auth')
+        cls.follower = User.objects.create_user(username='follower')
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-slug',
@@ -169,10 +187,16 @@ class PaginatorViewsTest(TestCase):
             )
             for i in range(1, POSTS_LIST + 1)
         ])
+        cls.follow = Follow.objects.create(
+            author = cls.user,
+            user = cls.follower,
+        )
 
     def setUp(self) -> None:
         self.authorized_client = Client()
+        self.follower_client = Client()
         self.authorized_client.force_login(self.user)
+        self.follower_client.force_login(self.follower)
 
     def test_first_page_contains_ten_records(self) -> None:
         """Template of first page with paginator."""
@@ -206,11 +230,6 @@ class PaginatorViewsTest(TestCase):
         for key in urls.keys():
             with self.subTest(key=key):
                 resp = self.client.get(urls[key] + '?page=2')
-                self.assertEqual(
-                    len(resp.context['page_obj']),
-                    POSTS_PER_PAGE,
-                    f'First {resp} page - paginator error.'
-                )
                 check = POSTS_LIST - POSTS_PER_PAGE
                 if check >= POSTS_PER_PAGE:
                     self.assertEqual(
@@ -223,6 +242,28 @@ class PaginatorViewsTest(TestCase):
                         POSTS_LIST % POSTS_PER_PAGE,
                         f'Last {resp} page - paginator error(2).'
                     )
+    def test_first_follow_index_page(self) -> None:
+        resp = self.follower_client.get(reverse('posts:follow_index'))
+        self.assertEqual(
+            len(resp.context['page_obj']),
+            POSTS_PER_PAGE,
+            f'First {resp} page - paginator error.'
+        )
+    
+    def test_last_follow_index_page(self) -> None:
+        resp = self.follower_client.get(reverse('posts:follow_index') + '?page=2')
+        check = POSTS_LIST - POSTS_PER_PAGE
+        if check >= POSTS_PER_PAGE:
+            self.assertEqual(
+                len(resp.context['page_obj']), POSTS_PER_PAGE,
+                f'Last {resp} page - paginator error(1).'
+            )
+        else:
+            self.assertEqual(
+                len(resp.context['page_obj']),
+                POSTS_LIST % POSTS_PER_PAGE,
+                f'Last {resp} page - paginator error(2).'
+            )
 
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)

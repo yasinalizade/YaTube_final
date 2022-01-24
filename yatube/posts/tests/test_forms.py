@@ -5,7 +5,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from ..forms import PostForm
-from ..models import Group, Post
+from ..models import Comment, Group, Post
 
 User = get_user_model()
 
@@ -81,6 +81,20 @@ class PostFormTests(TestCase):
                 group=form_data['group'],
             ).exists()
         )
+    
+    def test_comment_post(self) -> None:
+        """Авторизованный клиент может комментировать."""
+        posts_count = Comment.objects.count()
+        form_data = {
+            'text': 'Тестовый текст публикации',
+        }
+        response = self.not_author_client.post(
+            reverse('posts:add_comment', kwargs={'post_id': self.post.pk}),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(Comment.objects.count(), posts_count + 1)
 
     def test_guest_create_post(self):
         """Аноним не может добавить публикацию в Post."""
@@ -132,3 +146,17 @@ class PostFormTests(TestCase):
                 text=form_data['text'],
             ).exists(),
         )
+
+    def test_guest_comment_post(self):
+        """Аноним не может комментировать публикацию в Post."""
+        posts_count = Comment.objects.count()
+        form_data = {
+            'text': 'Тестовый текст публикации',
+        }
+        response = self.client.post(
+            reverse('posts:add_comment', kwargs={'post_id': self.post.pk}),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(Comment.objects.count(), posts_count)
