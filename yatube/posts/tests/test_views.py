@@ -36,8 +36,8 @@ class PostPagesTests(TestCase):
             text='Тестовая публикация',
         )
         cls.follow = Follow.objects.create(
-            author = cls.user,
-            user = cls.follower,
+            author=cls.user,
+            user=cls.follower,
         )
 
     def setUp(self) -> None:
@@ -188,8 +188,8 @@ class PaginatorViewsTest(TestCase):
             for i in range(1, POSTS_LIST + 1)
         ])
         cls.follow = Follow.objects.create(
-            author = cls.user,
-            user = cls.follower,
+            author=cls.user,
+            user=cls.follower,
         )
 
     def setUp(self) -> None:
@@ -242,6 +242,7 @@ class PaginatorViewsTest(TestCase):
                         POSTS_LIST % POSTS_PER_PAGE,
                         f'Last {resp} page - paginator error(2).'
                     )
+
     def test_first_follow_index_page(self) -> None:
         resp = self.follower_client.get(reverse('posts:follow_index'))
         self.assertEqual(
@@ -249,9 +250,11 @@ class PaginatorViewsTest(TestCase):
             POSTS_PER_PAGE,
             f'First {resp} page - paginator error.'
         )
-    
+
     def test_last_follow_index_page(self) -> None:
-        resp = self.follower_client.get(reverse('posts:follow_index') + '?page=2')
+        resp = self.follower_client.get(
+            reverse('posts:follow_index') + '?page=2'
+        )
         check = POSTS_LIST - POSTS_PER_PAGE
         if check >= POSTS_PER_PAGE:
             self.assertEqual(

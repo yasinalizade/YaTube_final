@@ -81,7 +81,7 @@ class PostFormTests(TestCase):
                 group=form_data['group'],
             ).exists()
         )
-    
+
     def test_comment_post(self) -> None:
         """Авторизованный клиент может комментировать."""
         posts_count = Comment.objects.count()

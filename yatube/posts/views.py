@@ -158,9 +158,9 @@ def profile_follow(request: HttpRequest, username: str) -> HttpResponse:
     """Follow the author."""
     author = get_object_or_404(User, username=username)
     follow = Follow.objects.filter(
-        user=request.user.is_authenticated,
+        user=request.user,
         author=author).exists()
-    if follow is False:
+    if follow is False and author != request.user:
         Follow.objects.create(
             author=author,
             user=request.user,
