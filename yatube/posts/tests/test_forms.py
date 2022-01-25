@@ -35,8 +35,7 @@ class PostFormTests(TestCase):
             User.objects.create_user(username='not_author')
         )
 
-    def test_create_post(self) -> None:
-        """Валидная форма создает запись в Post."""
+    def test_valid_form_create_post(self) -> None:
         posts_count = Post.objects.count()
         form_data = {
             'text': 'Тестовый текст публикации',
@@ -49,6 +48,7 @@ class PostFormTests(TestCase):
         )
         the_post = Post.objects.filter(text=form_data['text'])[0]
         last_post = Post.objects.all()[0]
+
         self.assertRedirects(response, (
             reverse('posts:profile', kwargs={'username': self.user.username})
         ))
@@ -56,8 +56,7 @@ class PostFormTests(TestCase):
         self.assertEqual(the_post.text, last_post.text)
         self.assertEqual(the_post.group.id, last_post.group.id)
 
-    def test_post_edit(self) -> None:
-        """Валидная форма редактирует запись в Post."""
+    def test_valid_form_edit_post(self) -> None:
         posts_count = Post.objects.count()
         form_data = {
             'text': 'Отредактированный текст публикации',
@@ -68,9 +67,9 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
+
         self.assertRedirects(response, (
-            reverse('posts:post_detail', kwargs={'post_id': self.post.pk})
-        )
+            reverse('posts:post_detail', kwargs={'post_id': self.post.pk}))
         )
         self.assertEqual(Post.objects.count(), posts_count)
         self.assertTrue(
@@ -82,8 +81,7 @@ class PostFormTests(TestCase):
             ).exists()
         )
 
-    def test_comment_post(self) -> None:
-        """Авторизованный клиент может комментировать."""
+    def test_authorized_client_comment_post(self) -> None:
         posts_count = Comment.objects.count()
         form_data = {
             'text': 'Тестовый текст публикации',
@@ -93,11 +91,11 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
+
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Comment.objects.count(), posts_count + 1)
 
-    def test_guest_create_post(self):
-        """Аноним не может добавить публикацию в Post."""
+    def test_guest_cannot_create_post(self):
         posts_count = Post.objects.count()
         form_data = {
             'text': 'Тестовый текст публикации',
@@ -107,11 +105,11 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
+
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Post.objects.count(), posts_count)
 
-    def test_guest_edit_post(self):
-        """Аноним не может редактировать публикацию."""
+    def test_guest_cannot_edit_post(self):
         form_data = {
             'text': 'Отредактированный текст публикации',
         }
@@ -120,6 +118,7 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
+
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertFalse(
             Post.objects.filter(
@@ -128,8 +127,7 @@ class PostFormTests(TestCase):
             ).exists()
         )
 
-    def test_not_author_edit_post(self):
-        """Не автор не может редактировать публикацию."""
+    def test_not_author_cannot_edit_post(self):
         form_data = {
             'text': 'Отредактированный текст публикации',
         }
@@ -138,6 +136,7 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
+
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertFalse(
             Post.objects.filter(
@@ -147,8 +146,7 @@ class PostFormTests(TestCase):
             ).exists(),
         )
 
-    def test_guest_comment_post(self):
-        """Аноним не может комментировать публикацию в Post."""
+    def test_guest_cannot_comment_post(self):
         posts_count = Comment.objects.count()
         form_data = {
             'text': 'Тестовый текст публикации',
@@ -158,5 +156,6 @@ class PostFormTests(TestCase):
             data=form_data,
             follow=True
         )
+
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Comment.objects.count(), posts_count)

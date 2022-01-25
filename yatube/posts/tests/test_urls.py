@@ -28,37 +28,36 @@ class PostURLTests(TestCase):
         self.authorized_client.force_login(self.user)
 
     def test_urls_exists_at_desired_location(self) -> None:
-        """Работоспособность URL-адресов."""
         templates_url_names = [
             '/',
-            '/follow/',
             f'/group/{self.group.slug}/',
             f'/profile/{self.post.author}/',
             f'/posts/{self.post.pk}/',
         ]
         for address in templates_url_names:
             with self.subTest(address=address):
-                response = self.authorized_client.get(address)
+                response = self.client.get(address)
+
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def test_create_edit_urls_exists_at_desired_location(self) -> None:
-        """Работоспособность URL-адресов."""
+    def test_create_edit_follow_urls_exists_at_desired_location(self) -> None:
         templates_url_names = [
             '/create/',
             f'/posts/{self.post.pk}/edit/',
+            '/follow/',
         ]
         for address in templates_url_names:
             with self.subTest(address=address):
                 response = self.authorized_client.get(address)
+
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def test_not_found(self) -> None:
-        """Несущетсвующий URL-адрес."""
+    def test_not_found_page(self) -> None:
         response = self.client.get('/not_found/')
+
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_urls_uses_correct_template(self) -> None:
-        """URL-адрес использует соответствующий шаблон."""
         templates_url_names = {
             'posts/index.html': '/',
             'posts/follow.html': '/follow/',
@@ -73,6 +72,7 @@ class PostURLTests(TestCase):
                 template = 'posts/create_post.html'
                 with self.subTest(address=address):
                     response = self.authorized_client.get(address)
+
                     self.assertTemplateUsed(
                         response,
                         template,

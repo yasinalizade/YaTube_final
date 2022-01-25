@@ -47,7 +47,6 @@ class PostPagesTests(TestCase):
         self.follower_client.force_login(self.follower)
 
     def test_pages_uses_correct_template(self) -> None:
-        """URL uses correct address."""
         templates_pages_names = {
             'posts/index.html': reverse('posts:index'),
             'posts/follow.html': reverse('posts:follow_index'),
@@ -80,8 +79,7 @@ class PostPagesTests(TestCase):
                         f'Error in {template}'
                     )
 
-    def test_post_view(self) -> None:
-        """Not authorized client view post."""
+    def test_anonymous_view_post(self) -> None:
         urls = {
             1: reverse(
                 'posts:profile',
@@ -104,8 +102,7 @@ class PostPagesTests(TestCase):
                     f'Error with not authorized client post view: {resp}.'
                 )
 
-    def test_post_detail_data(self) -> None:
-        """post_detail context check."""
+    def test_post_detail_context(self) -> None:
         response = self.authorized_client.get(
             reverse('posts:post_detail', kwargs={'post_id': self.post.pk})
         )
@@ -113,8 +110,7 @@ class PostPagesTests(TestCase):
 
         self.assertEqual(id_check, self.post.pk)
 
-    def test_post_create_data(self) -> None:
-        """post_create context check."""
+    def test_post_create_context(self) -> None:
         response = self.authorized_client.get(reverse('posts:post_create'))
         form_fields = {
             'text': forms.fields.CharField,
@@ -128,8 +124,7 @@ class PostPagesTests(TestCase):
 
                 self.assertIsInstance(form_field, expected)
 
-    def test_post_edit_data(self) -> None:
-        """post_edit context check."""
+    def test_post_edit_context(self) -> None:
         response = self.authorized_client.get(
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk})
         )
@@ -146,7 +141,6 @@ class PostPagesTests(TestCase):
                 self.assertIsInstance(form_field, expected)
 
     def test_follow_index_page(self) -> None:
-        """Check follow index page"""
         resp = self.follower_client.get(reverse('posts:follow_index'))
         post_check = resp.context.get('page_obj')[0]
         the_post = Post.objects.get(
@@ -159,8 +153,7 @@ class PostPagesTests(TestCase):
             f'Error with follower client post view: {resp}.'
         )
 
-    def test_unfollow_func(self) -> None:
-        """Check unfollow function works correct."""
+    def test_unfollow_follow_funcs(self) -> None:
         count1 = Follow.objects.count()
         self.follower_client.get(
             reverse('posts:profile_unfollow', kwargs={'username': self.user})
@@ -175,7 +168,6 @@ class PostPagesTests(TestCase):
         self.assertEqual(count2 + 1, count3)
 
     def test_cache_index_page(self) -> None:
-        """Check cache works correct."""
         resp1 = self.client.get(reverse('posts:index'))
         check1 = resp1.content
         Post.objects.get(author=self.user).delete()
@@ -222,8 +214,7 @@ class PaginatorViewsTest(TestCase):
         self.authorized_client.force_login(self.user)
         self.follower_client.force_login(self.follower)
 
-    def test_first_page_contains_ten_records(self) -> None:
-        """Template of first page with paginator."""
+    def test_first_pages_contain_ten_records(self) -> None:
         urls = {
             1: reverse(
                 'posts:profile',
@@ -242,8 +233,7 @@ class PaginatorViewsTest(TestCase):
                     f'First {resp} page - paginator error.'
                 )
 
-    def test_second_page_contains_remainder_records(self) -> None:
-        """Template of last index page with paginator."""
+    def test_second_pages_contain_remainder_records(self) -> None:
         urls = {
             1: reverse(
                 'posts:profile',
@@ -322,8 +312,7 @@ class PostCreateFormTests(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-    def test_create_task(self):
-        """Valid form create post with image in Post."""
+    def test_valid_form_with_image_create_post(self):
         posts_count = Post.objects.count()
         small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x02\x00'

@@ -26,6 +26,7 @@ class PostModelTest(TestCase):
         post = self.post
         text = post.text[:15]
         verbose = post._meta.get_field('text').verbose_name
+
         self.assertEqual(str(post), text)
         self.assertEqual(verbose, 'Текст')
 
@@ -34,17 +35,18 @@ class PostModelTest(TestCase):
         group = self.group
         title = group.title
         verbose = group._meta.get_field('title').verbose_name
+
         self.assertEqual(str(group), title)
         self.assertEqual(verbose, 'Группа')
 
-    def test_title_help_text(self) -> None:
-        """help_text поля text совпадает с ожидаемым."""
+    def test_help_text_post_title(self) -> None:
         post = self.post
         help_text = post._meta.get_field('text').help_text
+
         self.assertEqual(help_text, 'Введите текст поста')
 
-    def test_title_help_text(self) -> None:
-        """help_text поля title совпадает с ожидаемым."""
+    def test_help_text_group_title(self) -> None:
         group = self.group
         help_text = group._meta.get_field('title').help_text
+
         self.assertEqual(help_text, 'Выберите группу')
