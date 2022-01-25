@@ -19,6 +19,7 @@ def index(request: HttpRequest) -> HttpResponse:
         'list_add': True,
         'group_add': True,
     }
+
     return render(request, 'posts/index.html', context)
 
 
@@ -34,6 +35,7 @@ def group_posts(request: HttpRequest, slug: str) -> HttpResponse:
         'page_obj': page_obj,
         'group_add': False,
     }
+
     return render(request, 'posts/group_list.html', context)
 
 
@@ -47,12 +49,10 @@ def profile(request: HttpRequest, username: str) -> HttpResponse:
     page_obj = paginator.get_page(page_number)
     following = None
     if request.user.is_authenticated:
-        following = False
-        if Follow.objects.filter(
+        following = Follow.objects.filter(
             author=user,
             user=request.user
-        ).exists():
-            following = True
+        ).exists()
     context = {
         'author': user,
         'page_obj': page_obj,
@@ -61,6 +61,7 @@ def profile(request: HttpRequest, username: str) -> HttpResponse:
         'group_add': True,
         'following': following
     }
+
     return render(request, 'posts/profile.html', context)
 
 
@@ -77,6 +78,7 @@ def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
         'comments': comments,
         'count': count
     }
+
     return render(request, 'posts/post_detail.html', context)
 
 
@@ -88,12 +90,14 @@ def post_create(request: HttpRequest) -> HttpResponse:
         post = form.save(commit=False)
         post.author = request.user
         post.save()
+
         return redirect('posts:profile', username=post.author.username)
 
     context = {
         "form": form,
         "is_edit": "Новый пост",
     }
+
     return render(request, 'posts/create_post.html', context)
 
 
@@ -102,6 +106,7 @@ def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, id=post_id)
     author = post.author
     if request.user != author:
+
         return redirect('posts:post_detail', post_id=post.pk)
     form = PostForm(
         request.POST or None,
@@ -111,6 +116,7 @@ def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
     if form.is_valid():
         post = form.save(commit=False)
         post.save()
+
         return redirect('posts:post_detail', post_id=post.pk)
 
     context = {
@@ -118,6 +124,7 @@ def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
         "form": form,
         "is_edit": "Редактировать пост",
     }
+
     return render(request, 'posts/create_post.html', context)
 
 
@@ -131,6 +138,7 @@ def add_comment(request: HttpRequest, post_id: int) -> HttpResponse:
         comment.author = request.user
         comment.post = post
         comment.save()
+
     return redirect('posts:post_detail', post_id=post_id)
 
 
@@ -150,6 +158,7 @@ def follow_index(request: HttpRequest) -> HttpResponse:
         'list_add': True,
         'group_add': True,
     }
+
     return render(request, 'posts/follow.html', context)
 
 
@@ -157,14 +166,12 @@ def follow_index(request: HttpRequest) -> HttpResponse:
 def profile_follow(request: HttpRequest, username: str) -> HttpResponse:
     """Follow the author."""
     author = get_object_or_404(User, username=username)
-    follow = Follow.objects.filter(
-        user=request.user,
-        author=author).exists()
-    if follow is False and author != request.user:
-        Follow.objects.create(
-            author=author,
+    if author != request.user:
+        Follow.objects.get_or_create(
             user=request.user,
+            author=author,
         )
+
     return redirect('posts:follow_index')
 
 
@@ -172,8 +179,7 @@ def profile_follow(request: HttpRequest, username: str) -> HttpResponse:
 def profile_unfollow(request: HttpRequest, username: str) -> HttpResponse:
     """Unfollow the author"""
     author = get_object_or_404(User, username=username)
-    Follow.objects.get(
-        author=author,
-        user=request.user
-    ).delete()
+    following = get_object_or_404(Follow, author=author, user=request.user)
+    following.delete()
+
     return redirect('posts:index')

@@ -1,25 +1,25 @@
 {% load thumbnail %}
 <article>
-  <ul>
-    {% if list_add %}
-      <li>
-          Автор: {{ post.author.get_full_name }}
-        <a href="{% url 'posts:profile' post.author.get_username %}">все посты пользователя</a>
-      </li>
-    {% endif %}
-    <li>
-      Дата публикации: {{ post.pub_date|date:"d E Y" }}
-    </li>
-  </ul>
-  {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+    {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
     <img class="card-img my-2" src="{{ im.url }}">
-  {% endthumbnail %}
-  <p>{{ post.text|truncatewords:30 }}</p>
-    <a href="{% url 'posts:post_detail' post.pk %}">подробная информация</a>
-  </br>
-  {% if group_add %}
-    {% if post.group %}
-      <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
+    {% endthumbnail %}
+    <ul>
+      {% if list_add %}
+        <li>
+            Автор: {{ post.author.get_full_name }}
+          <a href="{% url 'posts:profile' post.author.get_username %}">все посты пользователя</a>
+        </li>
+      {% endif %}
+      <li>
+        Дата публикации: {{ post.pub_date|date:"d E Y" }}
+      </li>
+    </ul>
+    <p>{{ post.text|truncatewords:30 }} </p>
+      <a href="{% url 'posts:post_detail' post.pk %}">подробная информация</a>
+    </br>
+    {% if group_add %}
+      {% if post.group %}
+        <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
+      {% endif %}
     {% endif %}
-  {% endif %}
 </article>

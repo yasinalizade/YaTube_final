@@ -73,6 +73,7 @@ class PostPagesTests(TestCase):
                 template = 'posts/create_post.html'
                 with self.subTest(reverse_name=reverse_name):
                     response = self.authorized_client.get(reverse_name)
+
                     self.assertTemplateUsed(
                         response,
                         template,
@@ -96,6 +97,7 @@ class PostPagesTests(TestCase):
                 the_post = Post.objects.get(
                     id=self.post.pk
                 )
+
                 self.assertEqual(
                     post_check,
                     the_post,
@@ -108,6 +110,7 @@ class PostPagesTests(TestCase):
             reverse('posts:post_detail', kwargs={'post_id': self.post.pk})
         )
         id_check = response.context.get('post').pk
+
         self.assertEqual(id_check, self.post.pk)
 
     def test_post_create_data(self) -> None:
@@ -122,6 +125,7 @@ class PostPagesTests(TestCase):
         for value, expected in form_fields.items():
             with self.subTest(value=value):
                 form_field = response.context.get('form').fields.get(value)
+
                 self.assertIsInstance(form_field, expected)
 
     def test_post_edit_data(self) -> None:
@@ -138,6 +142,7 @@ class PostPagesTests(TestCase):
         for value, expected in form_fields.items():
             with self.subTest(value=value):
                 form_field = response.context.get('form').fields.get(value)
+
                 self.assertIsInstance(form_field, expected)
 
     def test_follow_index_page(self) -> None:
@@ -147,11 +152,27 @@ class PostPagesTests(TestCase):
         the_post = Post.objects.get(
             id=self.post.pk
         )
+
         self.assertEqual(
             post_check,
             the_post,
             f'Error with follower client post view: {resp}.'
         )
+
+    def test_unfollow_func(self) -> None:
+        """Check unfollow function works correct."""
+        count1 = Follow.objects.count()
+        self.follower_client.get(
+            reverse('posts:profile_unfollow', kwargs={'username': self.user})
+        )
+        count2 = Follow.objects.count()
+        self.follower_client.get(
+            reverse('posts:profile_follow', kwargs={'username': self.user})
+        )
+        count3 = Follow.objects.count()
+
+        self.assertNotEqual(count1, count2)
+        self.assertEqual(count2 + 1, count3)
 
     def test_cache_index_page(self) -> None:
         """Check cache works correct."""
@@ -160,11 +181,14 @@ class PostPagesTests(TestCase):
         Post.objects.get(author=self.user).delete()
         resp2 = self.client.get(reverse('posts:index'))
         check2 = resp2.content
+
         self.assertEqual(Post.objects.count(), 0, 'The post is still in DB')
         self.assertEqual(check1, check2, "Cache doesn't work.")
+
         cache.clear()
         resp3 = self.client.get(reverse('posts:index'))
         check3 = resp3.content
+
         self.assertNotEqual(check1, check3, 'Cache is not cleared')
 
 
@@ -211,6 +235,7 @@ class PaginatorViewsTest(TestCase):
         for key in urls.keys():
             with self.subTest(key=key):
                 resp = self.client.get(urls[key])
+
                 self.assertEqual(
                     len(resp.context['page_obj']),
                     POSTS_PER_PAGE,
@@ -245,6 +270,7 @@ class PaginatorViewsTest(TestCase):
 
     def test_first_follow_index_page(self) -> None:
         resp = self.follower_client.get(reverse('posts:follow_index'))
+
         self.assertEqual(
             len(resp.context['page_obj']),
             POSTS_PER_PAGE,
@@ -363,7 +389,6 @@ class PostCreateFormTests(TestCase):
             'the_post does not exist in DB'
         )
         for key in urls.keys():
-            print(urls[key])
             with self.subTest(key=key):
                 resp = self.client.get(urls[key])
                 post_check = resp.context.get('page_obj')[0]
@@ -371,6 +396,7 @@ class PostCreateFormTests(TestCase):
                     text=form_data['text'],
                     image='posts/small.gif'
                 )
+
                 self.assertEqual(
                     post_check,
                     the_post,

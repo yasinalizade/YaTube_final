@@ -16,6 +16,10 @@ class Group(models.Model):
     slug = models.SlugField(allow_unicode=True, unique=True)
     description = models.TextField()
 
+    class Meta:
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
+
     def __str__(self) -> str:
         return self.title
 
@@ -100,6 +104,13 @@ class Follow(models.Model):
         on_delete=models.CASCADE,
         related_name='follower',
     )
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=['author', 'user'], name='unique_follower')
+        ]
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
 
     def __str__(self) -> str:
         return super().__str__()
