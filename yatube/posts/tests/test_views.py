@@ -153,19 +153,29 @@ class PostPagesTests(TestCase):
             f'Error with follower client post view: {resp}.'
         )
 
-    def test_unfollow_follow_funcs(self) -> None:
-        count1 = Follow.objects.count()
+    def test_unfollow_funcs(self) -> None:
+        count = Follow.objects.count()
         self.follower_client.get(
             reverse('posts:profile_unfollow', kwargs={'username': self.user})
         )
+        count1 = Follow.objects.count()
+
+        self.assertNotEqual(count, count1)
+        self.assertFalse(Follow.objects.filter(
+            author=self.user, user=self.follower
+        ).exists())
+
+    def test_follow_func(self) -> None:
         count2 = Follow.objects.count()
-        self.follower_client.get(
-            reverse('posts:profile_follow', kwargs={'username': self.user})
+        self.authorized_client.get(
+            reverse('posts:profile_follow', kwargs={'username': self.follower})
         )
         count3 = Follow.objects.count()
 
-        self.assertNotEqual(count1, count2)
         self.assertEqual(count2 + 1, count3)
+        self.assertTrue(Follow.objects.filter(
+            author=self.follower, user=self.user
+        ).exists())
 
     def test_cache_index_page(self) -> None:
         resp1 = self.client.get(reverse('posts:index'))
