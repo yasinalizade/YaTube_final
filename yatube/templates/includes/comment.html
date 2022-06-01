@@ -1,4 +1,32 @@
 {% load user_filters %}
+{% load i18n %}
+
+{% if comments %}
+<h5>Комментарии:</h5>
+{% endif %}
+{% for comment in comments %}
+  <div class="media mb-1">
+    <div class="media-body">
+      <h5 class="mt-0">
+        <a href="{% url 'posts:profile' comment.author.username %}">
+          {{ comment.author.username }}
+        </a>
+        {% if comment.author == request.user %}
+          <a
+            id='btn-delete'
+            href="{% url 'posts:delete_comment' post.id comment.id %}" role="button"
+          >
+          ×
+          </a>
+        {% endif %}
+      </h5>
+        <p>{{ comment.text }}
+        <div><small id='date' class='text-muted'>{{ comment.created|date:"d E Y H:i" }}</small></div>
+        </p>
+      </div>
+      {% if not forloop.last %}<hr>{% endif %}
+    </div>
+{% endfor %}
 
 {% if user.is_authenticated %}
   <div class="card my-4">
@@ -6,7 +34,7 @@
     <div class="card-body">
       <form method="post" action="{% url 'posts:add_comment' post.id %}">
         {% csrf_token %}      
-        <div class="form-group mb-2">
+        <div class="form-group mb-3">
           {{ form.text|addclass:"form-control" }}
         </div>
         <button type="submit" class="btn btn-primary">Отправить</button>
@@ -14,18 +42,3 @@
     </div>
   </div>
 {% endif %}
-
-{% for comment in comments %}
-  <div class="media mb-4">
-    <div class="media-body">
-      <h5 class="mt-0">
-        <a href="{% url 'posts:profile' comment.author.username %}">
-          {{ comment.author.username }}
-        </a>
-      </h5>
-        <p>
-         {{ comment.text }}
-        </p>
-      </div>
-    </div>
-{% endfor %}

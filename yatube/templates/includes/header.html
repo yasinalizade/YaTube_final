@@ -14,25 +14,25 @@
     <ul class="navbar nav nav-pills ms-auto me-2">
       {% with request.resolver_match.view_name as view_name %}
       {% if user.username %}
-      <li class="nav-item"> 
-        <a class="nav-link {% if view_name == 'posts:post_create' %}active{% endif %}" href="{% url 'posts:post_create' %}">Новая запись</a>
-      </li>
-      <li class="nav-item"> 
-        <a class="nav-link {% if view_name == 'users:password_change' %}active{% endif %}" href="{% url 'users:password_change' %}">Изменить пароль</a>
-      </li>
-      <li class="nav-item"> 
-        <a class="nav-link {% if view_name == 'logged_out' %}active{% endif %}"  href="{% url 'users:logged_out' %}">Выйти</a>
-      </li>
-      <li>
-        Пользователь: {{ user.username }}
-      <li>
+        <li class="nav-item"> 
+          <a class="nav-link {% if view_name == 'posts:post_create' %}active{% endif %}" href="{% url 'posts:post_create' %}">Новая запись</a>
+        </li>
+        <li class="nav-item"> 
+          <a class="nav-link {% if view_name == 'users:password_change' %}active{% endif %}" href="{% url 'users:password_change' %}">Изменить пароль</a>
+        </li>
+        <li class="nav-item"> 
+          <a class="nav-link {% if view_name == 'logged_out' %}active{% endif %}"  href="{% url 'users:logged_out' %}">Выйти</a>
+        </li>
+        <li class="nav-item">
+          Пользователь: {{ user.username }}
+        </li>
       {% else %}
-      <li class="nav-item"> 
-        <a class="nav-link {% if view_name == 'login' %}active{% endif %}" href="{% url 'users:login' %}">Войти</a>
-      </li>
-      <li class="nav-item"> 
-        <a class="nav-link {% if view_name == 'users:signup' %}active{% endif %}" href="{% url 'users:signup' %}">Регистрация</a>
-      </li>
+        <li class="nav-item"> 
+          <a class="nav-link {% if view_name == 'login' %}active{% endif %}" href="{% url 'users:login' %}">Войти</a>
+        </li>
+        <li class="nav-item"> 
+          <a class="nav-link {% if view_name == 'users:signup' %}active{% endif %}" href="{% url 'users:signup' %}">Регистрация</a>
+        </li>
       {% endif %}
       {% endwith %}
     </ul>

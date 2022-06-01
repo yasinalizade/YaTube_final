@@ -4,10 +4,11 @@
 {% block title %}
   Пост {{ post|truncatewords:30 }}
 {% endblock %}
+
 {% block content %}
   <div class="row">
-    <aside class="col-12 col-md-3">
-      <ul class="list-group list-group-flush">
+    <aside class="col-12 col-md-3 mb-4">
+      <ul class="card list-group list-group-flush">
         <li class="list-group-item">
           Дата публикации: {{ post.pub_date|date:'d E Y'}} 
         </li>
@@ -19,26 +20,29 @@
             </a>
           </li>
         {% endif %}
-          <li class="list-group-item">
-            Автор: {{ post.author.get_full_name }}
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-          Всего постов автора:  <span > {{ count }} </span>
-          </li>
-          <li class="list-group-item">
-            <a href="{% url 'posts:profile' post.author.username %}">
-              Все посты пользователя
-            </a>
-          </li>
+        <li class="list-group-item">
+          Автор:{% if post.author.username == 'admin' %}
+                  {{ post.author.get_username }}
+                {% else %}
+                  {{ post.author.get_full_name }}
+                {% endif %}
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+        Всего постов автора:
+        <a class='badge bg-primary rounded-pill'
+        href="{% url 'posts:profile' post.author.username %}">
+          {{ count }}
+        </a>
+        </li>
       </ul>
     </aside>
     <article class="container col-12 col-md-9">
       {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
-        <img class="card-img my-2" src="{{ im.url }}">
+        <img class="card-img my-2 mb-3" src="{{ im.url }}">
       {% endthumbnail %}
       <p>{{ post.text }}</p>
       {% if post.author == request.user %}
-        <a class="btn btn-primary" href="{% url 'posts:post_edit' post.pk %}">
+        <a class="btn btn-primary mb-3" href="{% url 'posts:post_edit' post.pk %}">
           редактировать запись
         </a>
       {% endif %}

@@ -1,25 +1,44 @@
 {% load thumbnail %}
-<article>
-    {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
-    <img class="card-img my-2" src="{{ im.url }}">
-    {% endthumbnail %}
+
+<div class='card'>
+  {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+    <img class="card-img my-2 mb-3" src="{{ im.url }}">
+  {% endthumbnail %}
+  <div class='card-body'>
     <ul>
       {% if list_add %}
         <li>
-            Автор: {{ post.author.get_full_name }}
-          <a href="{% url 'posts:profile' post.author.get_username %}">все посты пользователя</a>
+            Автор:
+          <a href="{% url 'posts:profile' post.author.get_username %}">
+            {% if post.author.username == 'admin' %}
+              {{ post.author.get_username }}
+            {% else %}
+              {{ post.author.get_full_name }}
+            {% endif %}
+          </a>
         </li>
       {% endif %}
-      <li>
-        Дата публикации: {{ post.pub_date|date:"d E Y" }}
-      </li>
-    </ul>
-    <p>{{ post.text|truncatewords:30 }} </p>
-      <a href="{% url 'posts:post_detail' post.pk %}">подробная информация</a>
-    </br>
-    {% if group_add %}
-      {% if post.group %}
-        <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
+      {% if group_add %}
+        {% if post.group %}
+          <li>
+            Группа: 
+            <a href="{% url 'posts:group_list' post.group.slug %}" class='card-link'>
+              {{ post.group.title }}
+              </a>
+          </li>
+        {% endif %}
       {% endif %}
-    {% endif %}
-</article>
+    </ul>
+    <p>{{ post.text|truncatewords:30 }}</p>
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="btn-group">
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'posts:post_detail' post.pk %}">
+          подробнее
+        </a>
+      </div>
+      <div class="text-muted">
+        <small>{{ post.pub_date|date:"d E Y г. H:i" }}</small>
+      </div>
+    </div>
+  </div>
+</div>
