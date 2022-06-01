@@ -26,14 +26,14 @@ class PostPagesTests(TestCase):
         cls.user = User.objects.create_user(username='auth')
         cls.follower = User.objects.create_user(username='follower')
         cls.group = Group.objects.create(
-            title='Тестовая группа',
+            title='Test group',
             slug='test-slug',
-            description='Тестовое описание',
+            description='Test description',
         )
         cls.post = Post.objects.create(
             author=cls.user,
             group=cls.group,
-            text='Тестовая публикация',
+            text='Test post',
         )
         cls.follow = Follow.objects.create(
             author=cls.user,
@@ -201,14 +201,14 @@ class PaginatorViewsTest(TestCase):
         cls.user = User.objects.create_user(username='auth')
         cls.follower = User.objects.create_user(username='follower')
         cls.group = Group.objects.create(
-            title='Тестовая группа',
+            title='Test group',
             slug='test-slug',
-            description='Тестовое описание',
+            description='Test description',
         )
         cls.post = Post.objects.bulk_create([
             Post(
                 author=cls.user,
-                text=f'Тестовый текст {i}',
+                text=f'Test text {i}',
                 group=cls.group
             )
             for i in range(1, POSTS_LIST + 1)
